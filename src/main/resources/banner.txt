@@ -1,0 +1,1 @@
+ :: Spring Boot + Bootstrap + AngularJS + OAth2 + Hazelcast ::   v0.0.1.BUILD-SNAPSHOT
