@@ -178,57 +178,10 @@ public class SpringCacheTokenStoreImpl implements SpringCacheTokenStore {
     @Override
     public Collection<OAuth2AccessToken> findTokensByClientIdAndUserName(final String clientId, final String userName) {
         return tokenRepository.findTokensByClientIdAndUserName(clientId, userName);
-//        Collection<OAuth2AccessToken> result = userNameToAccessTokenStore.get(getApprovalKey(clientId, userName));
-//        return result != null ? Collections.<OAuth2AccessToken> unmodifiableCollection(result) : Collections
-//                .<OAuth2AccessToken> emptySet();
-//        return Collections.<OAuth2AccessToken>emptySet();
     }
 
     @Override
     public Collection<OAuth2AccessToken> findTokensByClientId(final String clientId) {
         return tokenRepository.findTokensByClientId(clientId);
-//        Collection<OAuth2AccessToken> result = clientIdToAccessTokenStore.get(clientId);
-//        return result != null ? Collections.<OAuth2AccessToken> unmodifiableCollection(result) : Collections
-//                .<OAuth2AccessToken> emptySet();
-        //return Collections.<OAuth2AccessToken>emptySet();
     }
-
-    //    private void flush() {
-//        TokenExpiry expiry = expiryQueue.poll();
-//        while (expiry != null) {
-//            removeAccessToken(expiry.getValue());
-//            expiry = expiryQueue.poll();
-//        }
-//    }
-//
-//    private static class TokenExpiry implements Delayed {
-//
-//        private final long expiry;
-//
-//        private final String value;
-//
-//        public TokenExpiry(String value, Date date) {
-//            this.value = value;
-//            this.expiry = date.getTime();
-//        }
-//
-//        public int compareTo(Delayed other) {
-//            if (this == other) {
-//                return 0;
-//            }
-//            long diff = getDelay(TimeUnit.MILLISECONDS) - other.getDelay(TimeUnit.MILLISECONDS);
-//            return (diff == 0 ? 0 : ((diff < 0) ? -1 : 1));
-//        }
-//
-//
-//        public long getDelay(TimeUnit unit) {
-//            return expiry - System.currentTimeMillis();
-//        }
-//
-//        public String getValue() {
-//            return value;
-//        }
-//
-//    }
-
 }
