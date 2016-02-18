@@ -42,11 +42,13 @@ public class TokenRepository {
     public static final String NOT_CACHED = "#result == null";
     public static final String APPROVAL_KEY_GENERATOR = "approvalKeyGenerator";
 
+    @CacheEvict(value = ACCESS_TOKEN_CACHE, keyGenerator = OAUTH2_ACCESS_TOKEN_KEY_GENERATOR, beforeInvocation = true)
     @Cacheable(value = ACCESS_TOKEN_CACHE, keyGenerator = OAUTH2_ACCESS_TOKEN_KEY_GENERATOR)
     public OAuth2AccessToken storeAccessToken(final OAuth2AccessToken token) {
         return token;
     }
 
+    @CacheEvict(value = AUTHENTICATION_TO_ACCESS_TOKEN_CACHE, keyGenerator = APPROVAL_KEY_GENERATOR, beforeInvocation = true)
     @Cacheable(value = AUTHENTICATION_TO_ACCESS_TOKEN_CACHE, keyGenerator = APPROVAL_KEY_GENERATOR)
     public OAuth2AccessToken storeAuthenticationToAccessToken(final String clientIt,
                                                               final String userName,
@@ -58,7 +60,7 @@ public class TokenRepository {
     public void removeUserNameToAccessToken(final String clientId, String name) {
     }
 
-    @CacheEvict(value = CLIENT_ID_TO_ACCESS_TOKEN_CACHE)
+    @CacheEvict(value = CLIENT_ID_TO_ACCESS_TOKEN_CACHE, key = "#root.args[0]")
     public void removeClientIdToAccessToken(final String clientId) {
     }
 
@@ -66,23 +68,40 @@ public class TokenRepository {
     public void removeAuthenticationToAccessToken(final OAuth2Authentication authentication) {
     }
 
-    @Cacheable(value = ACCESS_TOKEN_CACHE, unless = NOT_CACHED)
+    @Cacheable(value = ACCESS_TOKEN_CACHE, key = "#root.args[0]", unless = NOT_CACHED)
     public OAuth2AccessToken findAccessToken(final String tokenValue) {
         return null;
     }
 
+    @CacheEvict(value = REFRESH_TOKEN_CACHE, keyGenerator = OAUTH2_REFRESH_TOKEN_KEY_GENERATOR, beforeInvocation = true)
     @Cacheable(value = REFRESH_TOKEN_CACHE, keyGenerator = OAUTH2_REFRESH_TOKEN_KEY_GENERATOR)
     public OAuth2RefreshToken storeRefreshToken(final OAuth2RefreshToken refreshToken) {
         return refreshToken;
     }
 
+    @CacheEvict(value = REFRESH_TOKEN_AUTHENTICATION_CACHE, keyGenerator = OAUTH2_REFRESH_TOKEN_KEY_GENERATOR, beforeInvocation = true)
     @Cacheable(value = REFRESH_TOKEN_AUTHENTICATION_CACHE, keyGenerator = OAUTH2_REFRESH_TOKEN_KEY_GENERATOR)
     public OAuth2Authentication storeRefreshTokenAuthentication(final OAuth2RefreshToken refreshToken,
                                                                 final OAuth2Authentication authentication) {
         return authentication;
     }
 
-    @Cacheable(value = REFRESH_TOKEN_CACHE, unless = NOT_CACHED)
+    @CacheEvict(value = CLIENT_ID_TO_ACCESS_TOKEN_CACHE, key = "#root.args[0]", beforeInvocation = true)
+    @Cacheable(value = CLIENT_ID_TO_ACCESS_TOKEN_CACHE, key = "#root.args[0]")
+    public Collection<OAuth2AccessToken> storeTokensByClientId(final String clientId,
+                                                               final Collection<OAuth2AccessToken> accessTokens) {
+        return accessTokens;
+    }
+
+    @CacheEvict(value = USER_NAME_TO_ACCESS_TOKEN_CACHE, keyGenerator = APPROVAL_KEY_GENERATOR, beforeInvocation = true)
+    @Cacheable(value = USER_NAME_TO_ACCESS_TOKEN_CACHE, keyGenerator = APPROVAL_KEY_GENERATOR)
+    public Collection<OAuth2AccessToken> storeTokensByClientIdAndUserName(final String clientId,
+                                                                          final String userName,
+                                                                          final Collection<OAuth2AccessToken> accessTokens) {
+        return accessTokens;
+    }
+
+    @Cacheable(value = REFRESH_TOKEN_CACHE, key = "#root.args[0]", unless = NOT_CACHED)
     public OAuth2RefreshToken findRefreshToken(final String tokenValue) {
         return null;
     }
@@ -102,15 +121,14 @@ public class TokenRepository {
         return new HashSet<>();
     }
 
-    @Cacheable(value = CLIENT_ID_TO_ACCESS_TOKEN_CACHE)
+    @Cacheable(value = CLIENT_ID_TO_ACCESS_TOKEN_CACHE, key = "#root.args[0]")
     public Collection<OAuth2AccessToken> findTokensByClientId(final String clientId) {
         return new HashSet<>();
     }
 
-    @CacheEvict(value = ACCESS_TOKEN_CACHE, beforeInvocation = false)
-    @Cacheable(value = ACCESS_TOKEN_CACHE, unless = NOT_CACHED)
+    @CacheEvict(value = ACCESS_TOKEN_CACHE, key = "#root.args[0]", beforeInvocation = false)
+    @Cacheable(value = ACCESS_TOKEN_CACHE, key = "#root.args[0]", unless = NOT_CACHED)
     public OAuth2AccessToken removeAccessToken(String tokenValue) {
-        // TODO does it works?
         return null;
     }
 
@@ -118,8 +136,8 @@ public class TokenRepository {
     public void removeAccessTokenToRefreshToken(final String tokenValue) {
     }
 
-    @CacheEvict(value = AUTHENTICATION_CACHE, beforeInvocation = false)
-    @Cacheable(cacheNames = AUTHENTICATION_CACHE, unless = NOT_CACHED)
+    @CacheEvict(value = AUTHENTICATION_CACHE, key = "#root.args[0]", beforeInvocation = false)
+    @Cacheable(cacheNames = AUTHENTICATION_CACHE, key = "#root.args[0]", unless = NOT_CACHED)
     public OAuth2Authentication removeAuthentication(String tokenValue) {
         return null;
     }
@@ -129,8 +147,8 @@ public class TokenRepository {
         return null;
     }
 
-    @Cacheable(cacheNames = AUTHENTICATION_CACHE, unless = NOT_CACHED)
-    public OAuth2Authentication findAuthentication(final String token) {
+    @Cacheable(cacheNames = AUTHENTICATION_CACHE, key = "#root.args[0]", unless = NOT_CACHED)
+    public OAuth2Authentication findAuthentication(final String tokenValue) {
         return null;
     }
 
