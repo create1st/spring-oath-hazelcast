@@ -26,6 +26,9 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import java.util.Collection;
 import java.util.HashSet;
 
+/**
+ * Token cache repository.
+ */
 public class TokenRepository {
     public static final String OAUTH2_ACCESS_TOKEN_KEY_GENERATOR = "oauth2AccessTokenKeyGenerator";
     public static final String OAUTH2_REFRESH_TOKEN_KEY_GENERATOR = "oauth2RefreshTokenKeyGenerator";
