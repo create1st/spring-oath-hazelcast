@@ -17,14 +17,13 @@
 
 package com.create.security.oauth2.provider.token;
 
-import com.create.security.oauth2.model.AuthenticatedUser;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 
 /**
- * {@link TokenEnhancer} for {@link AuthenticatedUser}
+ * {@link TokenEnhancer}
  */
 public class AuthenticatedUserTokenEnhancer implements TokenEnhancer {
 
@@ -34,8 +33,7 @@ public class AuthenticatedUserTokenEnhancer implements TokenEnhancer {
     public OAuth2AccessToken enhance(final OAuth2AccessToken accessToken,
                                      final OAuth2Authentication authentication) {
         final DefaultOAuth2AccessToken enhancedAccessToken = new DefaultOAuth2AccessToken(accessToken);
-        final AuthenticatedUser authenticatedUser = (AuthenticatedUser) authentication.getPrincipal();
-        enhancedAccessToken.getAdditionalInformation().put(AUTHENTICATED_USER, authenticatedUser);
+        enhancedAccessToken.getAdditionalInformation().put(AUTHENTICATED_USER, authentication.getPrincipal());
         return enhancedAccessToken;
     }
 }

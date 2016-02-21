@@ -15,20 +15,12 @@
  *
  */
 
-package com.create.application.configuration;
-
-import org.springframework.context.annotation.Import;
+package com.create.security.access;
 
 /**
- * Application configuration.
+ * User roles.
  */
-@Import({
-        JpaConfiguration.class,
-        CacheConfiguration.class,
-        SecurityConfiguration.class,
-        OAuthConfiguration.class,
-        WebSecurityConfiguration.class,
-        WebConfiguration.class
-})
-public class AppConfiguration {
+public interface Roles {
+    String ROLE_ADMIN = "ROLE_ADMIN";
+    String ROLE_USER = "ROLE_USER";
 }

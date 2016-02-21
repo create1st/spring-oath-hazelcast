@@ -17,14 +17,15 @@
 
 package com.create.application.configuration;
 
+import com.create.repository.PersonRepository;
+import com.create.security.core.userdetails.RepositoryUserDetailsService;
 import com.create.security.oauth2.provider.token.AuthenticatedUserTokenEnhancer;
 import com.create.security.oauth2.provider.token.SpringCacheTokenStore;
 import com.create.security.oauth2.provider.token.SpringCacheTokenStoreImpl;
 import com.create.security.oauth2.repository.TokenRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.oauth2.provider.token.DefaultAuthenticationKeyGenerator;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 
@@ -32,6 +33,7 @@ import org.springframework.security.oauth2.provider.token.TokenEnhancer;
  * Security configuration.
  */
 @Configuration
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration {
     @Bean
     public SpringCacheTokenStore tokenStore(final TokenRepository tokenRepository) {
@@ -43,34 +45,8 @@ public class SecurityConfiguration {
         return new AuthenticatedUserTokenEnhancer();
     }
 
-    @Autowired
-    private CacheManager cacheManager;
-
-
-    //    @Configuration
-//    protected static class OAuth2Config {
-//
-//        @Autowired
-//        private ClientDetailsService clientDetailsService;
-//
-//        @Bean
-//        public DefaultTokenServices tokenServices(final TokenStore tokenStore) {
-//            DefaultTokenServices services = new DefaultTokenServices();
-//            services.setClientDetailsService(clientDetailsService);
-//            services.setSupportRefreshToken(true);
-//            services.setTokenStore(tokenStore);
-//            return services;
-//        }
-//
-//        @Bean
-//        public WhitelabelErrorEndpoint oauth2ErrorEndpoint() {
-//            return new WhitelabelErrorEndpoint();
-//        }
-//
-//        @Bean
-//        public WhitelabelApprovalEndpoint oauth2ApprovalEndpoint() {
-//            return new WhitelabelApprovalEndpoint();
-//        }
-//
-//    }
+    @Bean
+    public RepositoryUserDetailsService repositoryUserDetailsService(final PersonRepository personRepository) {
+        return new RepositoryUserDetailsService(personRepository);
+    }
 }

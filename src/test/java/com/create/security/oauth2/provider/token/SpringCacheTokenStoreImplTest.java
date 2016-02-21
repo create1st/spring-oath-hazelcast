@@ -18,7 +18,6 @@
 package com.create.security.oauth2.provider.token;
 
 import com.create.application.Application;
-import com.create.security.oauth2.repository.TokenRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.DefaultOAuth2RefreshToken;
@@ -35,6 +35,7 @@ import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -55,25 +56,38 @@ public class SpringCacheTokenStoreImplTest {
     @Autowired
     private SpringCacheTokenStore store;
 
-    @Autowired
-    private TokenRepository tokenRepository;
-
     @Before
     public void setup() {
         clearStore();
+    }
+
+    private void clearStore() {
+        store.removeAccessToken(ACCESS_TOKEN);
+        store.removeRefreshToken(createOAuth2RefreshToken());
+    }
+
+    private OAuth2RefreshToken createOAuth2RefreshToken() {
+        return new DefaultOAuth2RefreshToken(REFRESH_TOKEN);
     }
 
     @Test
     public void testGetAccessTokenNotSet() throws Exception {
         // given
         final OAuth2Authentication authentication = createOAuth2Authentication();
-        final OAuth2AccessToken token = createOAuth2AccessToken();
 
         // when
         final OAuth2AccessToken accessToken = store.getAccessToken(authentication);
 
         // then
         assertThat(accessToken, nullValue());
+    }
+
+    private OAuth2Authentication createOAuth2Authentication() {
+        final OAuth2Request storedRequest = new OAuth2Request(Collections.emptyMap(), CLIENT_ID, Collections.<GrantedAuthority>emptyList(),
+                true, Collections.<String>emptySet(), Collections.<String>emptySet(), null, Collections.<String>emptySet(), Collections.<String, Serializable>emptyMap());
+        final User userDetails = new User(USER_NAME, PASSWORD, Collections.EMPTY_SET);
+        final Authentication userAuthentication = new UsernamePasswordAuthenticationToken(userDetails, null);
+        return new OAuth2Authentication(storedRequest, userAuthentication);
     }
 
     @Test
@@ -88,6 +102,12 @@ public class SpringCacheTokenStoreImplTest {
 
         // then
         assertThat(accessToken, is(token));
+    }
+
+    private OAuth2AccessToken createOAuth2AccessToken() {
+        final DefaultOAuth2AccessToken accessToken = new DefaultOAuth2AccessToken(ACCESS_TOKEN);
+        accessToken.setRefreshToken(createOAuth2RefreshToken());
+        return accessToken;
     }
 
     @Test
@@ -114,7 +134,6 @@ public class SpringCacheTokenStoreImplTest {
         assertThat(accessToken, is(token));
     }
 
-
     @Test
     public void testReadRefreshTokenNotSet() throws Exception {
         // given
@@ -125,7 +144,6 @@ public class SpringCacheTokenStoreImplTest {
         // then
         assertThat(refreshToken, nullValue());
     }
-
 
     @Test
     public void testReadRefreshToken() throws Exception {
@@ -140,7 +158,6 @@ public class SpringCacheTokenStoreImplTest {
         // then
         assertThat(refreshToken, is(token));
     }
-
 
     @Test
     public void testFindTokensByClientIdAndUserName() throws Exception {
@@ -170,72 +187,140 @@ public class SpringCacheTokenStoreImplTest {
         assertThat(accessTokens, hasItem(token));
     }
 
-
     @Test
-    public void testReadAuthentication() throws Exception {
+    public void testReadAuthenticationNotSet() throws Exception {
+        // given
 
+        // when
+        final OAuth2Authentication oAuth2Authentication = store.readAuthentication(ACCESS_TOKEN);
+
+        // then
+        assertThat(oAuth2Authentication, nullValue());
     }
 
     @Test
-    public void testReadAuthentication1() throws Exception {
+    public void testReadAuthentication() throws Exception {
+        // given
+        final OAuth2Authentication authentication = createOAuth2Authentication();
+        final OAuth2AccessToken token = createOAuth2AccessToken();
 
+        // when
+        store.storeAccessToken(token, authentication);
+        final OAuth2Authentication oAuth2Authentication = store.readAuthentication(ACCESS_TOKEN);
+
+        // then
+        assertThat(oAuth2Authentication, is(authentication));
+    }
+
+    @Test
+    public void testReadAuthenticationForTokenNotSet() throws Exception {
+        // given
+        final OAuth2AccessToken token = createOAuth2AccessToken();
+
+        // when
+        final OAuth2Authentication oAuth2Authentication = store.readAuthentication(token);
+
+        // then
+        assertThat(oAuth2Authentication, nullValue());
+    }
+
+    @Test
+    public void testReadAuthenticationForToken() throws Exception {
+        // given
+        final OAuth2Authentication authentication = createOAuth2Authentication();
+        final OAuth2AccessToken token = createOAuth2AccessToken();
+
+        // when
+        store.storeAccessToken(token, authentication);
+        final OAuth2Authentication oAuth2Authentication = store.readAuthentication(token);
+
+        // then
+        assertThat(oAuth2Authentication, is(authentication));
+    }
+
+    @Test
+    public void testReadAuthenticationForRefreshTokenNotSet() throws Exception {
+        // given
+        final OAuth2RefreshToken token = createOAuth2RefreshToken();
+
+        // when
+        final OAuth2Authentication oAuth2Authentication = store.readAuthenticationForRefreshToken(token);
+
+        // then
+        assertThat(oAuth2Authentication, nullValue());
     }
 
     @Test
     public void testReadAuthenticationForRefreshToken() throws Exception {
+        // given
+        final OAuth2Authentication authentication = createOAuth2Authentication();
+        final OAuth2RefreshToken token = createOAuth2RefreshToken();
 
-    }
+        // when
+        store.storeRefreshToken(token, authentication);
+        final OAuth2Authentication oAuth2Authentication = store.readAuthenticationForRefreshToken(token);
 
-    @Test
-    public void testStoreAccessToken() throws Exception {
-
+        // then
+        assertThat(oAuth2Authentication, is(authentication));
     }
 
     @Test
     public void testRemoveAccessToken() throws Exception {
+        // given
+        final OAuth2Authentication authentication = createOAuth2Authentication();
+        final OAuth2AccessToken token = createOAuth2AccessToken();
 
+        // when
+        store.storeAccessToken(token, authentication);
+        store.removeAccessToken(token);
+        final OAuth2Authentication oAuth2Authentication = store.readAuthentication(token);
+
+        // then
+        assertThat(oAuth2Authentication, nullValue());
     }
 
     @Test
-    public void testRemoveAccessToken1() throws Exception {
+    public void testRemoveAccessTokenForToken() throws Exception {
+        // given
+        final OAuth2Authentication authentication = createOAuth2Authentication();
+        final OAuth2AccessToken token = createOAuth2AccessToken();
 
+        // when
+        store.storeAccessToken(token, authentication);
+        store.removeAccessToken(ACCESS_TOKEN);
+        final OAuth2Authentication oAuth2Authentication = store.readAuthentication(token);
+
+        // then
+        assertThat(oAuth2Authentication, nullValue());
     }
-
-    @Test
-    public void testStoreRefreshToken() throws Exception {
-
-    }
-
 
     @Test
     public void testRemoveRefreshToken() throws Exception {
+        // given
+        final OAuth2Authentication authentication = createOAuth2Authentication();
+        final OAuth2RefreshToken token = createOAuth2RefreshToken();
 
+        // when
+        store.storeRefreshToken(token, authentication);
+        store.removeRefreshToken(token);
+        final OAuth2Authentication oAuth2Authentication = store.readAuthenticationForRefreshToken(token);
+
+        // then
+        assertThat(oAuth2Authentication, nullValue());
     }
 
     @Test
     public void testRemoveAccessTokenUsingRefreshToken() throws Exception {
+        // given
+        final OAuth2Authentication authentication = createOAuth2Authentication();
+        final OAuth2AccessToken token = createOAuth2AccessToken();
 
-    }
+        // when
+        store.storeAccessToken(token, authentication);
+        store.removeAccessTokenUsingRefreshToken(token.getRefreshToken());
+        final OAuth2AccessToken accessToken = store.readAccessToken(ACCESS_TOKEN);
 
-
-    private void clearStore() {
-        store.removeAccessToken(ACCESS_TOKEN);
-        store.removeRefreshToken(createOAuth2RefreshToken());
-    }
-
-    private OAuth2AccessToken createOAuth2AccessToken() {
-        return new DefaultOAuth2AccessToken(ACCESS_TOKEN);
-    }
-
-    private OAuth2RefreshToken createOAuth2RefreshToken() {
-        return new DefaultOAuth2RefreshToken(REFRESH_TOKEN);
-    }
-
-    private OAuth2Authentication createOAuth2Authentication() {
-        final OAuth2Request storedRequest = new OAuth2Request(Collections.emptyMap(), CLIENT_ID, Collections.EMPTY_LIST,
-                true, Collections.EMPTY_SET, Collections.EMPTY_SET, null, Collections.EMPTY_SET, Collections.EMPTY_MAP);
-        final User userDetails = new User(USER_NAME, PASSWORD, Collections.EMPTY_SET);
-        final Authentication userAuthentication = new UsernamePasswordAuthenticationToken(userDetails, null);
-        return new OAuth2Authentication(storedRequest, userAuthentication);
+        // then
+        assertThat(accessToken, nullValue());
     }
 }

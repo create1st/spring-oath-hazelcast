@@ -19,7 +19,6 @@ package com.create.application.configuration;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 
 
 /**
@@ -27,37 +26,5 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
  */
 @Configuration
 @ComponentScan(basePackages = "com.create.controller")
-@EnableWebSecurity
 public class WebConfiguration {
-//    @Configuration
-//    @EnableAuthorizationServer
-//    public static class OAuth2Config extends AuthorizationServerConfigurerAdapter {
-//        @Autowired
-//        private TokenStore tokenStore;
-//
-//        @Autowired
-//        private TokenEnhancer tokenEnhancer;
-//
-//        @Autowired
-//        private AuthenticationManager authenticationManager;
-//
-//        @Override
-//        public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-//            endpoints
-//                    .authenticationManager(authenticationManager)
-//                    .tokenStore(tokenStore)
-//                    .tokenEnhancer(tokenEnhancer);
-//        }
-//
-//        @Override
-//        public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-//            clients.inMemory()
-//                    .withClient("acme")
-//                    .secret("acmesecret")
-//                    .authorizedGrantTypes("authorization_code", "refresh_token",
-//                            "password").scopes("openid");
-//        }
-////        <property name="supportRefreshToken" value="true"/>
-////        <property name="accessTokenValiditySeconds" value="1200"/>
-//    }
 }

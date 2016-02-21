@@ -15,10 +15,21 @@
  *
  */
 
-package com.create.security.oauth2.model;
+package com.create.repository;
+
+import com.create.model.Person;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.Repository;
 
 /**
- * AuthenticatedUser profile.
+ * {@link Person} {@link Repository}.
  */
-public class AuthenticatedUser {
+public interface PersonRepository extends JpaRepository<Person, Long> {
+    /**
+     * Find user by login.
+     *
+     * @param login Person login.
+     * @return Person.
+     */
+    Person findByLogin(String login);
 }

@@ -2,9 +2,5 @@ spring:
   main:
     banner-mode: on
   resources.chain.enabled: true
-security:
-  user:
-    name: admin
-    password: password
 server:
   port: 8080
